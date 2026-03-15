@@ -1,16 +1,16 @@
 {
-  "name": "sistema-escolar-local",
+  "name": "sistema-cen",
   "version": "1.0.0",
+  "description": "Sistema Academico CEN",
   "main": "server.js",
-  "dependencies": {
-    "axios": "^1.13.6",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.6",
-    "express": "^4.22.1",
-    "mysql2": "^3.17.3",
-    "nodemailer": "^8.0.1"
-  },
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0"
   }
 }
