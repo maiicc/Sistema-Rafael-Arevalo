@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const path = require('path');
-const axios = require('axios'); // <--- CAMBIO CLAVE: Usamos Axios, no Nodemailer
+const axios = require('axios');
 const app = express();
 
 app.use(express.json());
@@ -18,26 +18,21 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- FUNCIÓN PARA ENVIAR CORREOS USANDO LA API DE BREVO ---
-async function enviarEmailAPI(asunto, contenidoHtml, emailDestino, nombreDestino) {
+// --- FUNCIÓN PARA ENVIAR CORREOS USANDO GOOGLE APPS SCRIPT ---
+async function enviarEmailAPI(subject, html, toEmail) {
     const data = {
-        sender: { name: "CEN Rafael Arévalo González", email: process.env.EMAIL_USER },
-        to: [{ email: emailDestino, name: nombreDestino }],
-        subject: asunto,
-        htmlContent: contenidoHtml
+        to: toEmail,
+        subject: subject,
+        html: html
     };
 
-    return axios.post('https://api.brevo.com/v3/smtp/email', data, {
-        headers: {
-            'api-key': process.env.EMAIL_PASS, // Aquí va la API KEY de Brevo
-            'content-type': 'application/json'
-        }
-    });
+    // Usamos la URL que te dio Google al publicar tu Script
+    return axios.post(process.env.GOOGLE_SCRIPT_URL, data);
 }
 
 let esperaRegistro = {};
 
-// --- REGISTRO ---
+// --- RUTAS DE REGISTRO ---
 
 app.post('/solicitar-registro', async (req, res) => {
     const { nombre, email } = req.body;
@@ -46,17 +41,17 @@ app.post('/solicitar-registro', async (req, res) => {
     const html = `
         <div style="font-family: sans-serif; text-align: center; border: 1px solid #ddd; padding: 20px; border-radius: 15px;">
             <h2 style="color: #002D5A;">Código de Verificación</h2>
-            <p>Tu código para registrarte en el sistema CEN es:</p>
+            <p>Hola <b>${nombre}</b>, tu código para registrarte en el sistema CEN es:</p>
             <h1 style="letter-spacing: 10px; color: #002D5A; background: #f4f4f4; display: inline-block; padding: 10px 20px; border-radius: 10px;">${codigo}</h1>
         </div>`;
 
     try {
-        await enviarEmailAPI("Código de Verificación - Registro", html, email, nombre);
+        await enviarEmailAPI("Código de Verificación - Registro", html, email);
         esperaRegistro[email] = { datos: req.body, codigo: codigo };
-        console.log(`✅ Código ${codigo} enviado a ${email}`);
+        console.log(`✅ Correo enviado vía Google a ${email}`);
         res.send({ mensaje: "Código enviado." });
     } catch (error) {
-        console.error("❌ Error enviando código:", error.response ? error.response.data : error.message);
+        console.error("❌ Error en Google Script:", error.message);
         res.status(500).send("Error al enviar el correo de verificación.");
     }
 });
@@ -94,7 +89,7 @@ app.post('/login', (req, res) => {
     });
 });
 
-// --- GESTIÓN DE NOTAS CON ALERTA POR API ---
+// --- GESTIÓN DE NOTAS CON ALERTA ---
 app.post('/guardar-nota', (req, res) => {
     const { estudiante, asignatura, nota, rol } = req.body;
     const sqlInsert = "INSERT INTO calificaciones (estudiante, asignatura, nota, rol_quien_registro) VALUES (?, ?, ?, ?)";
@@ -102,7 +97,6 @@ app.post('/guardar-nota', (req, res) => {
     db.query(sqlInsert, [estudiante, asignatura, nota, rol], (err) => {
         if (err) return res.status(500).send(err);
 
-        // Si la nota es menor a 10, enviamos alerta al representante
         if (parseFloat(nota) < 10) {
             const sqlBuscarRep = `
                 SELECT r.email, r.nombre AS nombre_rep, s.nombre AS nombre_est 
@@ -115,15 +109,12 @@ app.post('/guardar-nota', (req, res) => {
                     const rep = results[0];
                     const htmlAlerta = `
                         <div style="font-family: sans-serif; border: 2px solid #ff0000; padding: 20px; border-radius: 15px;">
-                            <h2 style="color: #d32f2f;">⚠️ Alerta de Calificación Baja</h2>
-                            <p>Estimado(a) <b>${rep.nombre_rep}</b>,</p>
-                            <p>Le informamos que el estudiante <b>${rep.nombre_est}</b> obtuvo <b>${nota}</b> en <b>${asignatura}</b>.</p>
-                            <p>Por favor, comuníquese con la institución.</p>
+                            <h2 style="color: #d32f2f;">⚠️ Alerta Académica</h2>
+                            <p>Estimado(a) <b>${rep.nombre_rep}</b>, le informamos que el estudiante <b>${rep.nombre_est}</b> obtuvo <b>${nota}</b> en <b>${asignatura}</b>.</p>
                         </div>`;
 
                     try {
-                        await enviarEmailAPI(`⚠️ ALERTA: ${rep.nombre_est}`, htmlAlerta, rep.email, rep.nombre_rep);
-                        console.log("🚀 Alerta enviada con éxito");
+                        await enviarEmailAPI(`⚠️ ALERTA: ${rep.nombre_est}`, htmlAlerta, rep.email);
                     } catch (e) { console.error("❌ Error enviando alerta"); }
                 }
             });
@@ -133,7 +124,6 @@ app.post('/guardar-nota', (req, res) => {
 });
 
 // --- OTRAS RUTAS ---
-
 app.get('/mis-notas/:nombre', (req, res) => {
     db.query("SELECT asignatura, nota, fecha_registro FROM calificaciones WHERE estudiante = ? ORDER BY fecha_registro DESC", [req.params.nombre], (err, results) => {
         if (err) return res.status(500).send(err);
@@ -175,16 +165,15 @@ app.get('/nombre-hijo/:cedula', (req, res) => {
     });
 });
 
-// --- RUTAS ADMIN ---
 app.get('/admin/usuarios', (req, res) => { db.query("SELECT * FROM usuarios WHERE activo=1", (err, r) => res.send(r)); });
 app.get('/admin/usuarios-inactivos', (req, res) => { db.query("SELECT * FROM usuarios WHERE activo=0", (err, r) => res.send(r)); });
 app.put('/admin/usuarios/:id/rol', (req, res) => { db.query("UPDATE usuarios SET rol=? WHERE id_usuario=?", [req.body.nuevoRol, req.params.id], (err) => res.send({ mensaje: "OK" })); });
 app.put('/admin/usuarios/:id/estado', (req, res) => {
     const { activo, admin_nombre } = req.body;
     const sql = activo === 0 ? "UPDATE usuarios SET activo=0, fecha_inhabilitado=NOW(), inhabilitado_por=? WHERE id_usuario=?" : "UPDATE usuarios SET activo=1, fecha_inhabilitado=NULL, inhabilitado_por=NULL WHERE id_usuario=?";
-    const params = activo === 0 ? [admin_nombre, req.params.id] : [req.params.id];
-    db.query(sql, params, (err) => res.send({ mensaje: "OK" }));
+    db.query(sql, [admin_nombre || 'Admin', req.params.id], (err) => res.send({ mensaje: "OK" }));
 });
+
 app.get('/admin/notas', (req, res) => { db.query("SELECT * FROM calificaciones ORDER BY fecha_registro DESC", (err, r) => res.send(r)); });
 app.put('/admin/notas/:id', (req, res) => { db.query("UPDATE calificaciones SET nota=? WHERE id_nota=?", [req.body.nota, req.params.id], (err) => res.send({ mensaje: "OK" })); });
 app.delete('/admin/notas/:id', (req, res) => { db.query("DELETE FROM calificaciones WHERE id_nota=?", [req.params.id], (err) => res.send({ mensaje: "OK" })); });
