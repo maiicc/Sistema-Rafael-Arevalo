@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#002D5A">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>CEN Rafael Arévalo González - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #002D5A 0%, #001A35 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .seccion-app {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .seccion-app.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .role-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-700">
+
+    <div id="menu-overlay" onclick="toggleMenu()"
+        class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm lg:hidden"></div>
+
+    <aside id="sidebar"
+        class="sidebar w-72 text-white flex flex-col fixed inset-y-0 left-0 z-50 transform -translate-x-full lg:translate-x-0 lg:static shadow-2xl">
+        <div class="p-8 border-b border-white/10 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-500/20 p-2 rounded-xl"><i class="fas fa-graduation-cap text-xl text-blue-300"></i>
+                </div>
+                <h1 class="text-xs font-extrabold uppercase tracking-widest leading-tight">CEN <br> Rafael Arévalo
+                    González</h1>
+            </div>
+            <button onclick="toggleMenu()" class="lg:hidden text-white/50"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="flex-1 p-6 space-y-3">
+            <button onclick="cambiarSeccion('inicio')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all group active:scale-95"><i
+                    class="fas fa-chart-pie opacity-50"></i><span class="font-semibold text-sm">Inicio</span></button>
+            <button onclick="cambiarSeccion('mensajeria')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all group active:scale-95"><i
+                    class="fas fa-comment-dots opacity-50"></i><span
+                    class="font-semibold text-sm">Mensajería</span></button>
+            <button onclick="cambiarSeccion('perfil')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all group active:scale-95"><i
+                    class="fas fa-user-circle opacity-50"></i><span class="font-semibold text-sm">Mi
+                    Perfil</span></button>
+            <button id="btn-admin-link" onclick="window.location.href='admin.html'"
+                class="w-full hidden items-center space-x-4 p-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500 transition-all group border border-amber-500/20">
+                <i class="fas fa-shield-halved text-amber-500 group-hover:text-white"></i>
+                <span class="font-bold text-sm text-amber-500 group-hover:text-white">PANEL ADMIN</span>
+            </button>
+        </nav>
+        <div class="p-6 border-t border-white/10">
+            <button onclick="cerrarSesion()"
+                class="w-full p-4 bg-red-500/10 hover:bg-red-500 transition-all rounded-2xl font-bold flex items-center justify-center space-x-3 text-red-400 hover:text-white border border-red-500/20">
+                <i class="fas fa-power-off text-sm"></i><span>SALIR</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header
+            class="bg-white/80 backdrop-blur-md p-5 flex justify-between items-center border-b border-slate-200 px-6 md:px-10 z-30">
+            <div class="flex items-center space-x-5">
+                <button onclick="toggleMenu()"
+                    class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl text-blue-900"><i
+                        class="fas fa-bars-staggered"></i></button>
+                <div>
+                    <h2 id="page-title"
+                        class="font-extrabold text-slate-800 text-lg md:text-xl tracking-tighter uppercase">Panel de
+                        Control</h2>
+                    <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-0.5" id="userRol">
+                        Cargando...</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="location.reload()"
+                    class="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-xl text-blue-600 shadow-sm"><i
+                        class="fas fa-sync-alt text-xs"></i></button>
+                <div
+                    class="flex items-center space-x-3 bg-slate-50 p-1.5 pr-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-white"><i
+                            class="fas fa-user"></i></div>
+                    <p id="userName" class="text-xs font-bold text-slate-700 hidden sm:block"></p>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-5 md:p-10 overflow-y-auto flex-1 space-y-10">
+            <div id="vista-inicio" class="seccion-app active">
+                <section id="section-docente" class="role-section space-y-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div
+                            class="glass-card p-7 rounded-[2.5rem] border-l-[10px] border-blue-500 shadow-xl shadow-blue-900/5">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Estudiantes</p>
+                            <p id="stat-estudiantes" class="text-4xl font-black text-slate-800">0</p>
+                        </div>
+                        <div
+                            class="glass-card p-7 rounded-[2.5rem] border-l-[10px] border-red-500 shadow-xl shadow-red-900/5">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-2">En Riesgo</p>
+                            <p id="stat-alertas" class="text-4xl font-black text-red-600">0</p>
+                        </div>
+                        <div
+                            class="glass-card p-7 rounded-[2.5rem] border-l-[10px] border-green-500 shadow-xl shadow-green-900/5">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Evaluaciones</p>
+                            <p id="stat-evaluaciones" class="text-4xl font-black text-slate-800">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100">
+                        <h3 class="text-sm font-black text-blue-900 mb-8 uppercase tracking-widest italic">Registrar
+                            Nueva Calificación</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <select id="select-estudiante"
+                                class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:border-blue-500">
+                                <option value="">Seleccione Estudiante...</option>
+                            </select>
+                            <select id="mat"
+                                class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-600 outline-none">
+                                <option>Matemáticas</option>
+                                <option>Castellano</option>
+                                <option>G.H.C</option>
+                                <option>Educación Física</option>
+                                <option>Biología</option>
+                                <option>Física</option>
+                                <option>O.C</option>
+                                <option>Química</option>
+                                <option>Inglés</option>
+                            </select>
+                            <input type="number" id="nota" placeholder="Nota"
+                                class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm outline-none focus:border-blue-500">
+                            <button onclick="saveNota()"
+                                class="bg-blue-600 text-white rounded-2xl font-black text-xs hover:bg-blue-700 transition-all uppercase py-4">Guardar</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-estudiante" class="role-section space-y-8">
+                    <div
+                        class="bg-gradient-to-br from-blue-700 via-blue-900 to-indigo-950 p-10 rounded-[3rem] text-white shadow-2xl text-center">
+                        <h3 class="text-2xl font-black mb-2">Resumen Académico</h3>
+                        <p class="opacity-60 text-[10px] font-bold tracking-[0.3em] uppercase mb-8 text-white">Periodo
+                            2025-2026 • 3er Año</p>
+                        <p id="promedio-est" class="text-6xl font-black">--</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-[3rem] shadow-xl overflow-x-auto">
+                        <table class="w-full text-left min-w-[500px]">
+                            <thead>
+                                <tr class="text-[10px] font-black uppercase text-slate-400 border-b-2">
+                                    <th class="py-5">Asignatura</th>
+                                    <th class="text-center">Nota</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-notas-reales"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- VISTA MENSAJERÍA -->
+            <div id="vista-mensajeria" class="seccion-app space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-[3rem] shadow-xl space-y-4">
+                        <h3 class="text-xs font-black text-blue-900 uppercase italic mb-2">Redactar</h3>
+                        <select id="msg-destino"
+                            class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold"></select>
+                        <input type="text" id="msg-asunto" placeholder="Asunto"
+                            class="w-full p-4 bg-slate-50 border rounded-2xl text-xs">
+                        <textarea id="msg-cuerpo" placeholder="Mensaje..."
+                            class="w-full p-4 bg-slate-50 border rounded-2xl h-44 text-xs resize-none"></textarea>
+                        <button onclick="enviarMensaje()"
+                            class="w-full bg-blue-900 text-white font-black p-4 rounded-2xl text-xs">ENVIAR</button>
+                    </div>
+                    <div class="lg:col-span-2 space-y-5" id="bandeja-mensajes"></div>
+                </div>
+            </div>
+
+            <!-- VISTA PERFIL -->
+            <div id="vista-perfil" class="seccion-app">
+                <div class="max-w-md mx-auto bg-white rounded-[3.5rem] shadow-2xl overflow-hidden p-10 text-center">
+                    <h3 id="perf-nombre" class="text-xl font-black text-slate-800 mb-2 italic uppercase"></h3>
+                    <p id="perf-rol" class="text-blue-500 font-black uppercase text-[10px] tracking-widest mb-8"></p>
+                    <div class="text-left space-y-4 border-t pt-6">
+                        <div class="p-4 bg-slate-50 rounded-2xl flex justify-between"><span>Cédula:</span><span
+                                id="perf-cedula" class="font-bold"></span></div>
+                        <div class="p-4 bg-slate-50 rounded-2xl flex justify-between"><span>Correo:</span><span
+                                id="perf-email" class="font-bold"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('menu-overlay').classList.toggle('hidden');
+        }
+
+        window.onload = async function () {
+            const nombre = localStorage.getItem('usuario');
+            const rol = localStorage.getItem('rol');
+            if (!nombre || !rol) return window.location.href = 'login.html';
+
+            document.getElementById('userName').innerText = nombre;
+            document.getElementById('userRol').innerText = rol;
+
+            if (rol === 'Docente') {
+                document.getElementById('section-docente').style.display = 'block';
+                cargarEstadisticasDocente();
+                cargarEstudiantesEnSelect();
+            } else {
+                document.getElementById('section-estudiante').style.display = 'block';
+                if (rol === 'Estudiante') {
+                    cargarDatosReales(nombre);
+                } else if (rol === 'Representante') {
+                    const res = await fetch(`/nombre-hijo/${localStorage.getItem('cedula_hijo')}`);
+                    const hijo = await res.json();
+                    if (hijo.nombre_completo) cargarDatosReales(hijo.nombre_completo);
+                }
+            }
+            if (rol === 'Admin') {
+                document.getElementById('btn-admin-link').classList.remove('hidden');
+                document.getElementById('btn-admin-link').classList.add('flex');
+            }
+        };
+
+        async function cargarEstudiantesEnSelect() {
+            const res = await fetch('/estudiantes-lista');
+            const ests = await res.json();
+            const sel = document.getElementById('select-estudiante');
+            sel.innerHTML = '<option value="">Seleccione Estudiante...</option>';
+            ests.forEach(e => {
+                const nom = `${e.nombre} ${e.apellido}`;
+                sel.innerHTML += `<option value="${nom}">${nom}</option>`;
+            });
+        }
+
+        async function saveNota() {
+            const est = document.getElementById('select-estudiante').value;
+            const nota = document.getElementById('nota').value;
+            const mat = document.getElementById('mat').value;
+            if (!est || !nota) return alert("Complete los campos");
+
+            const res = await fetch('/guardar-nota', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estudiante: est, asignatura: mat, nota, rol: localStorage.getItem('rol') })
+            });
+            if (res.ok) { alert("✅ Nota registrada"); cargarEstadisticasDocente(); }
+        }
+
+        async function cargarDatosReales(nombreEst) {
+            const res = await fetch(`/mis-notas/${nombreEst}`);
+            const notas = await res.json();
+            const tabla = document.getElementById('tabla-notas-reales');
+            tabla.innerHTML = "";
+            let suma = 0;
+            notas.forEach(n => {
+                suma += parseFloat(n.nota);
+                const color = n.nota >= 10 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                tabla.innerHTML += `<tr><td class="py-6 font-bold">${n.asignatura}</td><td class="text-center font-black">${n.nota}</td><td class="text-center text-xs opacity-50">${new Date(n.fecha_registro).toLocaleDateString()}</td><td class="text-center"><span class="${color} px-4 py-2 rounded-2xl text-[9px] uppercase font-black">${n.nota >= 10 ? 'Aprobado' : 'Riesgo'}</span></td></tr>`;
+            });
+            if (notas.length) document.getElementById('promedio-est').innerText = (suma / notas.length).toFixed(1);
+        }
+
+        async function cargarEstadisticasDocente() {
+            const res = await fetch('/stats-docente');
+            const d = await res.json();
+            document.getElementById('stat-estudiantes').innerText = d.estudiantes;
+            document.getElementById('stat-alertas').innerText = d.alertas;
+            document.getElementById('stat-evaluaciones').innerText = d.evaluaciones;
+        }
+
+        async function cambiarSeccion(nombre) {
+            document.querySelectorAll('.seccion-app').forEach(div => div.classList.remove('active'));
+            document.getElementById('vista-' + nombre).classList.add('active');
+            document.getElementById('page-title').innerText = nombre.toUpperCase();
+            if (nombre === 'mensajeria') { obtenerContactos(); obtenerMensajes(); }
+            if (nombre === 'perfil') cargarPerfil();
+        }
+
+        async function cargarPerfil() {
+            const res = await fetch(`/perfil/${localStorage.getItem('id_usuario')}`);
+            const u = await res.json();
+            document.getElementById('perf-nombre').innerText = `${u.nombre} ${u.apellido}`;
+            document.getElementById('perf-rol').innerText = u.rol;
+            document.getElementById('perf-cedula').innerText = u.cedula;
+            document.getElementById('perf-email').innerText = u.email;
+        }
+
+        async function obtenerContactos() {
+            try {
+                const res = await fetch('/usuarios');
+                const us = await res.json();
+                const sel = document.getElementById('msg-destino');
+                const miId = localStorage.getItem('id_usuario');
+
+                sel.innerHTML = '<option value="">Para: Seleccione...</option>';
+                us.forEach(u => {
+                    // No aparecer yo mismo en la lista
+                    if (u.id_usuario != miId) {
+                        sel.innerHTML += `<option value="${u.id_usuario}">${u.nombre} ${u.apellido} (${u.rol})</option>`;
+                    }
+                });
+            } catch (e) { console.error("Error cargando contactos:", e); }
+        }
+
+        async function enviarMensaje() {
+            const remitente_id = localStorage.getItem('id_usuario');
+            const destinatario_id = document.getElementById('msg-destino').value;
+            const asunto = document.getElementById('msg-asunto').value;
+            const contenido = document.getElementById('msg-cuerpo').value;
+
+            if (!destinatario_id || !contenido) {
+                return alert("⚠️ Seleccione un destinatario y escriba un mensaje.");
+            }
+
+            const datos = { remitente_id, destinatario_id, asunto, contenido };
+
+            try {
+                const res = await fetch('/enviar-mensaje', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                if (res.ok) {
+                    alert("✅ Mensaje enviado exitosamente");
+                    document.getElementById('msg-asunto').value = "";
+                    document.getElementById('msg-cuerpo').value = "";
+                    document.getElementById('msg-destino').value = "";
+                } else {
+                    alert("❌ Error al enviar el mensaje");
+                }
+            } catch (e) { alert("❌ Error de conexión"); }
+        }
+
+        async function obtenerMensajes() {
+            try {
+                const userId = localStorage.getItem('id_usuario');
+                const res = await fetch(`/mensajes/${userId}`);
+                const ms = await res.json();
+                const cont = document.getElementById('bandeja-mensajes');
+
+                cont.innerHTML = ms.length ? "" : '<div class="bg-white p-10 rounded-3xl text-center opacity-40">Bandeja vacía</div>';
+
+                ms.forEach(m => {
+                    const fecha = new Date(m.fecha_envio).toLocaleString();
+                    cont.innerHTML += `
+                <div class="bg-white p-6 rounded-[2rem] border-l-[12px] border-blue-900 shadow-xl shadow-blue-900/5 hover:-translate-y-1 transition-all">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">De: ${m.nombre_remitente}</p>
+                        <span class="text-[8px] text-slate-300 font-bold">${fecha}</span>
+                    </div>
+                    <h4 class="text-xs font-black uppercase text-slate-800 mb-1">${m.asunto || 'Sin Asunto'}</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">${m.contenido}</p>
+                </div>`;
+                });
+            } catch (e) { console.error("Error cargando mensajes:", e); }
+        }
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = 'login.html'; }
+    </script>
+</body>
+
+</html>

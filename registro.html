@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>Registro - CEN Rafael Arévalo González</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 md:p-8">
+
+    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-blue-900">
+        
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-black text-blue-900 uppercase tracking-tight">Crear Cuenta</h2>
+            <p class="text-gray-500 text-xs uppercase font-bold mt-1">CEN Rafael Arévalo González</p>
+        </div>
+        
+        <!-- PARTE 1: DATOS -->
+        <div id="caja-datos" class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" id="nom" placeholder="Nombre" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 bg-gray-50 text-sm">
+                <input type="text" id="ape" placeholder="Apellido" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 bg-gray-50 text-sm">
+            </div>
+            <input type="tel" id="ced" placeholder="Cédula" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 bg-gray-50 text-sm">
+            <input type="email" id="email" placeholder="Correo" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 bg-gray-50 text-sm">
+            <input type="password" id="pass" placeholder="Contraseña" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 bg-gray-50 text-sm">
+            <select id="rol" onchange="toggleRepresentante()" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none bg-gray-50 text-sm font-bold text-blue-900">
+                <option value="Docente">Docente</option>
+                <option value="Estudiante">Estudiante</option>
+                <option value="Representante">Representante</option>
+            </select>
+            <div id="caja-hijo" class="hidden">
+                <input type="tel" id="ced_hijo" placeholder="Cédula del Estudiante" class="w-full p-3 border-2 border-blue-100 rounded-2xl bg-blue-50 text-sm">
+            </div>
+        </div>
+
+        <!-- PARTE 2: CÓDIGO -->
+        <div id="caja-verificacion" class="hidden mt-4 text-center space-y-4">
+            <div class="bg-orange-50 p-6 rounded-3xl border-2 border-orange-200">
+                <p class="text-sm font-bold text-orange-800">Código enviado al correo</p>
+                <input type="text" id="input_codigo" placeholder="000000" maxlength="6" class="w-full text-center text-3xl font-black tracking-[5px] outline-none bg-transparent border-b-4 border-orange-400 text-orange-900">
+            </div>
+        </div>
+
+        <button id="btn-registro" onclick="enviarRegistro()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold p-4 rounded-2xl shadow-lg mt-4 transition-all">
+            SIGUIENTE: ENVIAR CÓDIGO
+        </button>
+
+        <div class="mt-6 text-center">
+            <a href="login.html" class="text-sm text-blue-700 font-bold hover:underline">Volver al Inicio</a>
+        </div>
+    </div>
+
+    <script>
+        let codigoEnviado = false;
+
+        function toggleRepresentante() {
+            const rol = document.getElementById('rol').value;
+            document.getElementById('caja-hijo').classList.toggle('hidden', rol !== 'Representante');
+        }
+
+        async function enviarRegistro() {
+            const btn = document.getElementById('btn-registro');
+            const email = document.getElementById('email').value;
+
+            if (!codigoEnviado) {
+                const datos = {
+                    nombre: document.getElementById('nom').value,
+                    apellido: document.getElementById('ape').value,
+                    cedula: document.getElementById('ced').value,
+                    email: email,
+                    password: document.getElementById('pass').value,
+                    rol: document.getElementById('rol').value,
+                    cedula_hijo: document.getElementById('ced_hijo').value 
+                };
+
+                if(!datos.nombre || !email || !datos.password) return alert("Complete los datos");
+
+                btn.innerText = "ENVIANDO...";
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/solicitar-registro', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(datos)
+                    });
+
+                    if (res.ok) {
+                        alert("📧 Código enviado. Revise su correo.");
+                        document.getElementById('caja-datos').classList.add('hidden');
+                        document.getElementById('caja-verificacion').classList.remove('hidden');
+                        btn.innerText = "VERIFICAR Y REGISTRAR";
+                        btn.disabled = false;
+                        codigoEnviado = true;
+                    } else {
+                        alert("Error al enviar código.");
+                        btn.innerText = "REINTENTAR";
+                        btn.disabled = false;
+                    }
+                } catch (e) { alert("Error de conexión"); }
+
+            } else {
+                const codigo = document.getElementById('input_codigo').value;
+                const res = await fetch('/verificar-y-registrar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: email, codigoRecibido: codigo })
+                });
+
+                if (res.ok) {
+                    alert("✅ Registro exitoso.");
+                    window.location.href = 'login.html';
+                } else {
+                    const err = await res.text();
+                    alert("❌ " + err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

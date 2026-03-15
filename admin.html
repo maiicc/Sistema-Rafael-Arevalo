@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CEN RAG - Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #002D5A 0%, #001A35 100%);
+            transition: 0.3s;
+        }
+
+        .seccion-admin {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .seccion-admin.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-slate-700">
+
+    <div id="menu-overlay" onclick="toggleMenu()"
+        class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm lg:hidden"></div>
+
+    <aside id="sidebar"
+        class="sidebar w-72 text-white flex flex-col fixed inset-y-0 left-0 z-50 transform -translate-x-full lg:translate-x-0 lg:static shadow-2xl">
+        <div class="p-8 border-b border-white/10">
+            <h1 class="text-xs font-black uppercase tracking-widest leading-tight">CEN RAG <br> ADMINISTRACIÓN</h1>
+        </div>
+        <nav class="flex-1 p-6 space-y-3">
+            <button onclick="cambiarSeccionAdmin('docente')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all">
+                <i class="fas fa-chalkboard-user opacity-50"></i><span class="font-bold text-sm">Panel Docente</span>
+            </button>
+            <button onclick="cambiarSeccionAdmin('usuarios')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all">
+                <i class="fas fa-users-cog opacity-50"></i><span class="font-bold text-sm">Gestionar Usuarios</span>
+            </button>
+            <button onclick="cambiarSeccionAdmin('notas')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all">
+                <i class="fas fa-star opacity-50"></i><span class="font-bold text-sm">Control de Notas</span>
+            </button>
+            <button onclick="cambiarSeccionAdmin('inactivos')"
+                class="w-full flex items-center space-x-4 p-4 rounded-2xl hover:bg-white/10 transition-all">
+                <i class="fas fa-user-slash opacity-50"></i><span class="font-bold text-sm">Inhabilitados</span>
+            </button>
+        </nav>
+        <div class="p-6 border-t border-white/10">
+            <a href="dashboard.html"
+                class="w-full p-4 bg-blue-500/10 hover:bg-blue-600 transition-all rounded-2xl font-bold flex items-center justify-center space-x-3 text-white">
+                <i class="fas fa-home"></i><span>VOLVER AL PANEL</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="bg-white/80 backdrop-blur-md p-5 flex justify-between items-center border-b px-6 lg:px-10 z-30">
+            <div class="flex items-center space-x-5">
+                <button onclick="toggleMenu()"
+                    class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl text-blue-900"><i
+                        class="fas fa-bars"></i></button>
+                <h2 id="page-title-admin" class="font-extrabold text-slate-800 text-lg uppercase tracking-tighter">Panel
+                    Docente</h2>
+            </div>
+        </header>
+
+        <div class="p-4 lg:p-10 overflow-y-auto flex-1 space-y-10">
+
+            <!-- PANEL DOCENTE -->
+            <div id="sec-docente" class="seccion-admin active space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-[2rem] border-l-[8px] border-blue-500 shadow-xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Estudiantes</p>
+                        <p id="stat-estudiantes" class="text-3xl font-black">0</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[2rem] border-l-[8px] border-red-500 shadow-xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">En Riesgo</p>
+                        <p id="stat-alertas" class="text-3xl font-black text-red-600">0</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[2rem] border-l-[8px] border-green-500 shadow-xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Evaluaciones</p>
+                        <p id="stat-evaluaciones" class="text-3xl font-black">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-[3rem] shadow-xl border">
+                    <h3 class="text-xs font-black text-blue-900 mb-6 uppercase tracking-widest italic">Registrar Nueva
+                        Nota (Modo Admin)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <select id="select-estudiante"
+                            class="p-4 bg-slate-50 border rounded-2xl text-sm font-bold outline-none"></select>
+                        <select id="mat" class="p-4 bg-slate-50 border rounded-2xl text-sm font-bold outline-none">
+                            <option>Matemáticas</option>
+                            <option>Castellano</option>
+                            <option>G.H.C</option>
+                            <option>Educación Física</option>
+                            <option>Biología</option>
+                            <option>Física</option>
+                            <option>O.C</option>
+                            <option>Química</option>
+                            <option>Inglés</option>
+                        </select>
+                        <input type="number" id="nota" placeholder="Nota"
+                            class="p-4 bg-slate-50 border rounded-2xl text-sm outline-none">
+                        <button onclick="saveNotaAdmin()"
+                            class="bg-blue-600 text-white rounded-2xl font-black text-xs uppercase py-4">Guardar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GESTIÓN USUARIOS -->
+            <div id="sec-usuarios" class="seccion-admin">
+                <div class="bg-white rounded-[2rem] shadow-xl overflow-x-auto border">
+                    <table class="w-full text-left min-w-[700px]">
+                        <thead class="bg-slate-50 border-b">
+                            <tr class="text-[10px] font-black uppercase text-slate-400">
+                                <th class="p-6">Nombre Completo</th>
+                                <th>Cédula</th>
+                                <th>Rol</th>
+                                <th class="text-center">Inhabilitar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-usuarios-admin"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTROL DE NOTAS -->
+            <div id="sec-notas" class="seccion-admin">
+                <div class="bg-white rounded-[2rem] shadow-xl overflow-x-auto border">
+                    <table class="w-full text-left min-w-[700px]">
+                        <thead class="bg-slate-50 border-b">
+                            <tr class="text-[10px] font-black uppercase text-slate-400">
+                                <th class="p-6">Estudiante</th>
+                                <th>Materia</th>
+                                <th class="text-center">Nota</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-notas-admin"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INHABILITADOS -->
+            <div id="sec-inactivos" class="seccion-admin">
+                <div class="bg-white rounded-[2rem] shadow-xl overflow-x-auto border border-red-100">
+                    <table class="w-full text-left min-w-[900px]">
+                        <thead class="bg-red-50 border-b">
+                            <tr class="text-[10px] font-black uppercase text-red-400">
+                                <th class="p-6">Usuario</th>
+                                <th>Cédula</th>
+                                <th>Fecha</th>
+                                <th>Responsable</th>
+                                <th class="text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-inactivos-admin"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('menu-overlay').classList.toggle('hidden'); }
+
+        window.onload = () => {
+            if (localStorage.getItem('rol') !== 'Admin') window.location.href = 'dashboard.html';
+            cargarDatosAdmin();
+            cargarUsuarios();
+            cargarInactivos();
+            cargarNotasAdmin();
+        };
+
+        function cambiarSeccionAdmin(sec) {
+            document.querySelectorAll('.seccion-admin').forEach(s => s.classList.remove('active'));
+            document.getElementById('sec-' + sec).classList.add('active');
+            const titulos = { 'docente': 'Panel Docente', 'usuarios': 'Gestión de Usuarios', 'notas': 'Control de Calificaciones', 'inactivos': 'Cuentas Inhabilitadas' };
+            document.getElementById('page-title-admin').innerText = titulos[sec];
+            if (window.innerWidth < 1024) toggleMenu();
+        }
+
+        async function cargarDatosAdmin() {
+            const resS = await fetch('/stats-docente'); const d = await resS.json();
+            document.getElementById('stat-estudiantes').innerText = d.estudiantes; document.getElementById('stat-alertas').innerText = d.alertas; document.getElementById('stat-evaluaciones').innerText = d.evaluaciones;
+            const resE = await fetch('/estudiantes-lista'); const ests = await resE.json();
+            const sel = document.getElementById('select-estudiante'); sel.innerHTML = '<option value="">Seleccione Estudiante...</option>';
+            ests.forEach(e => { sel.innerHTML += `<option value="${e.nombre_completo}">${e.nombre_completo}</option>`; });
+        }
+
+        async function saveNotaAdmin() {
+            const est = document.getElementById('select-estudiante').value; const nota = document.getElementById('nota').value; const mat = document.getElementById('mat').value;
+            if (!est || !nota) return alert("Faltan datos");
+            await fetch('/guardar-nota', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estudiante: est, asignatura: mat, nota, rol: 'Admin' }) });
+            alert("✅ Nota guardada"); document.getElementById('nota').value = ""; cargarDatosAdmin(); cargarNotasAdmin();
+        }
+
+        async function cargarUsuarios() {
+            const res = await fetch('/admin/usuarios'); const data = await res.json();
+            const tabla = document.getElementById('tabla-usuarios-admin'); tabla.innerHTML = "";
+            data.forEach(u => { tabla.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="p-6 font-bold text-slate-800">${u.nombre} ${u.apellido}</td><td class="text-sm font-semibold">${u.cedula}</td><td><select onchange="cambiarRol(${u.id_usuario}, this.value)" class="p-2 bg-slate-100 rounded-lg text-xs font-black uppercase outline-none"><option value="Estudiante" ${u.rol === 'Estudiante' ? 'selected' : ''}>Estudiante</option><option value="Docente" ${u.rol === 'Docente' ? 'selected' : ''}>Docente</option><option value="Representante" ${u.rol === 'Representante' ? 'selected' : ''}>Representante</option><option value="Admin" ${u.rol === 'Admin' ? 'selected' : ''}>Admin</option></select></td><td class="text-center"><button onclick="cambiarEstado(${u.id_usuario}, 0)" class="text-red-500 hover:scale-110 transition-all"><i class="fas fa-user-slash text-lg"></i></button></td></tr>`; });
+        }
+
+        async function cargarNotasAdmin() {
+            const res = await fetch('/admin/notas'); const data = await res.json();
+            const tabla = document.getElementById('tabla-notas-admin'); tabla.innerHTML = "";
+            data.forEach(n => {
+                tabla.innerHTML += `<tr class="border-b">
+                    <td class="p-6 font-bold text-slate-800">${n.estudiante}</td>
+                    <td class="text-sm italic">${n.asignatura}</td>
+                    <td class="text-center">
+                        <input type="number" value="${n.nota}" onchange="modificarNota(${n.id_nota}, this.value)" class="w-16 p-2 bg-slate-100 rounded-lg text-center font-black">
+                    </td>
+                    <td class="text-center">
+                        <button onclick="borrarNota(${n.id_nota})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        async function modificarNota(id, nota) {
+            await fetch(`/admin/notas/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nota }) });
+            cargarDatosAdmin();
+        }
+
+        async function borrarNota(id) {
+            if (!confirm("¿Eliminar esta nota permanentemente?")) return;
+            await fetch(`/admin/notas/${id}`, { method: 'DELETE' });
+            cargarNotasAdmin(); cargarDatosAdmin();
+        }
+
+        async function cargarInactivos() {
+            const res = await fetch('/admin/usuarios-inactivos'); const data = await res.json();
+            const tabla = document.getElementById('tabla-inactivos-admin'); tabla.innerHTML = "";
+            data.forEach(u => { const fecha = u.fecha_inhabilitado ? new Date(u.fecha_inhabilitado).toLocaleString() : 'N/A'; tabla.innerHTML += `<tr class="border-b bg-red-50/20"><td class="p-6 font-bold text-red-900">${u.nombre} ${u.apellido}</td><td class="text-sm font-bold text-slate-400">${u.cedula}</td><td class="text-xs font-bold text-slate-600">${fecha}</td><td class="text-xs font-black text-blue-900 uppercase italic">${u.inhabilitado_por || 'Sistema'}</td><td class="text-center"><button onclick="cambiarEstado(${u.id_usuario}, 1)" class="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Reactivar</button></td></tr>`; });
+        }
+
+        async function cambiarRol(id, nuevoRol) { await fetch(`/admin/usuarios/${id}/rol`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nuevoRol }) }); alert("✅ Rol actualizado"); cargarUsuarios(); cargarDatosAdmin(); }
+
+        async function cambiarEstado(id, activo) {
+            const admin_nombre = localStorage.getItem('usuario');
+            if (!confirm(activo === 0 ? "¿Inhabilitar este usuario?" : "¿Reactivar cuenta?")) return;
+            await fetch(`/admin/usuarios/${id}/estado`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activo, admin_nombre }) });
+            cargarUsuarios(); cargarInactivos(); cargarDatosAdmin();
+        }
+    </script>
+</body>
+
+</html>
