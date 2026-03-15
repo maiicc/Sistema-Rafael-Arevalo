@@ -273,10 +273,20 @@
 
         async function cambiarEstado(id, activo) {
             const admin_nombre = localStorage.getItem('usuario');
-            if (!confirm(activo === 0 ? "¿Inhabilitar este usuario?" : "¿Reactivar cuenta?")) return;
-            await fetch(`/admin/usuarios/${id}/estado`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activo, admin_nombre }) });
-            cargarUsuarios(); cargarInactivos(); cargarDatosAdmin();
+            if (!confirm(activo === 0 ? "¿Inhabilitar?" : "¿Reactivar?")) return;
+
+            const res = await fetch(`/admin/usuarios/${id}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activo: Number(activo), admin_nombre })
+            });
+
+            if (res.ok) {
+                alert("✅ Estado actualizado");
+                cargarTodo();
+            }
         }
+
     </script>
 </body>
 

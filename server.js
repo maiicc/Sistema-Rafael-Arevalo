@@ -176,10 +176,23 @@ app.get('/admin/usuarios-inactivos', (req, res) => { db.query("SELECT * FROM usu
 app.put('/admin/usuarios/:id/rol', (req, res) => { db.query("UPDATE usuarios SET rol=? WHERE id_usuario=?", [req.body.nuevoRol, req.params.id], (err) => res.send({ mensaje: "OK" })); });
 app.put('/admin/usuarios/:id/estado', (req, res) => {
     const { activo, admin_nombre } = req.body;
-    const sql = activo === 0 ? "UPDATE usuarios SET activo=0, fecha_inhabilitado=NOW(), inhabilitado_por=? WHERE id_usuario=?" : "UPDATE usuarios SET activo=1, fecha_inhabilitado=NULL, inhabilitado_por=NULL WHERE id_usuario=?";
-    db.query(sql, [admin_nombre || 'Admin', req.params.id], (err) => res.send({ mensaje: "OK" }));
-});
+    const userId = req.params.id;
+    let sql = "";
+    let params = [];
 
+    if (Number(activo) === 0) {
+        sql = "UPDATE usuarios SET activo = 0, fecha_inhabilitado = NOW(), inhabilitado_por = ? WHERE id_usuario = ?";
+        params = [admin_nombre || 'Admin', userId];
+    } else {
+        sql = "UPDATE usuarios SET activo = 1, fecha_inhabilitado = NULL, inhabilitado_por = NULL WHERE id_usuario = ?";
+        params = [userId];
+    }
+
+    db.query(sql, params, (err) => {
+        if (err) return res.status(500).send(err);
+        res.send({ mensaje: "Estado actualizado" });
+    });
+});
 app.get('/admin/notas', (req, res) => { db.query("SELECT * FROM calificaciones ORDER BY fecha_registro DESC", (err, r) => res.send(r)); });
 app.put('/admin/notas/:id', (req, res) => { db.query("UPDATE calificaciones SET nota=? WHERE id_nota=?", [req.body.nota, req.params.id], (err) => res.send({ mensaje: "OK" })); });
 app.delete('/admin/notas/:id', (req, res) => { db.query("DELETE FROM calificaciones WHERE id_nota=?", [req.params.id], (err) => res.send({ mensaje: "OK" })); });
