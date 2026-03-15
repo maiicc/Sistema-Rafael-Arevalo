@@ -41,7 +41,7 @@ app.post('/solicitar-registro', async (req, res) => {
     const html = `
         <div style="font-family: sans-serif; text-align: center; border: 1px solid #ddd; padding: 20px; border-radius: 15px;">
             <h2 style="color: #002D5A;">Código de Verificación</h2>
-            <p>Hola <b>${nombre}</b>, tu código para registrarte en el sistema CEN es:</p>
+            <p>Hola <b>${nombre}</b>, tu código para registrarte en el sistema es:</p>
             <h1 style="letter-spacing: 10px; color: #002D5A; background: #f4f4f4; display: inline-block; padding: 10px 20px; border-radius: 10px;">${codigo}</h1>
         </div>`;
 
@@ -120,7 +120,7 @@ app.post('/guardar-nota', (req, res) => {
                             </div>`;
 
                     try {
-                        await enviarEmailAPI(`⚠️ ALERTA: ${rep.nombre_est}`, htmlAlerta, rep.email);
+                        await enviarEmailAPI(`⚠️ ALERTA DE CALIFICACIÓN`, htmlAlerta, rep.email);
                     } catch (e) { console.error("❌ Error enviando alerta"); }
                 }
             });
