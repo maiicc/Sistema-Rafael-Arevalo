@@ -1,0 +1,17 @@
+{
+  "name": "CEN Rafael Arévalo González",
+  "short_name": "RAG App",
+  "start_url": "login.html",
+  "display": "standalone",
+  "background_color": "#002D5A",
+  "theme_color": "#002D5A",
+  "icons": [
+    {
+      "src": "logo app.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+
+}
+
