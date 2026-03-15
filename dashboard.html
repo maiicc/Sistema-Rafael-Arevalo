@@ -57,6 +57,7 @@
 
 <body class="flex h-screen overflow-hidden text-slate-700">
 
+    <!-- Capa oscura para móvil -->
     <div id="menu-overlay" onclick="toggleMenu()"
         class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm lg:hidden"></div>
 
@@ -102,7 +103,7 @@
             class="bg-white/80 backdrop-blur-md p-5 flex justify-between items-center border-b border-slate-200 px-6 md:px-10 z-30">
             <div class="flex items-center space-x-5">
                 <button onclick="toggleMenu()"
-                    class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl text-blue-900"><i
+                    class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl text-blue-900 shadow-sm"><i
                         class="fas fa-bars-staggered"></i></button>
                 <div>
                     <h2 id="page-title"
@@ -114,12 +115,12 @@
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="location.reload()"
-                    class="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-xl text-blue-600 shadow-sm"><i
+                    class="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-xl text-blue-600 shadow-sm active:scale-90 transition-all"><i
                         class="fas fa-sync-alt text-xs"></i></button>
                 <div
                     class="flex items-center space-x-3 bg-slate-50 p-1.5 pr-5 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-white"><i
-                            class="fas fa-user"></i></div>
+                            class="fas fa-user text-sm"></i></div>
                     <p id="userName" class="text-xs font-bold text-slate-700 hidden sm:block"></p>
                 </div>
             </div>
@@ -127,6 +128,7 @@
 
         <div class="p-5 md:p-10 overflow-y-auto flex-1 space-y-10">
             <div id="vista-inicio" class="seccion-app active">
+                <!-- DOCENTE -->
                 <section id="section-docente" class="role-section space-y-8">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <div
@@ -168,20 +170,23 @@
                             <input type="number" id="nota" placeholder="Nota"
                                 class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm outline-none focus:border-blue-500">
                             <button onclick="saveNota()"
-                                class="bg-blue-600 text-white rounded-2xl font-black text-xs hover:bg-blue-700 transition-all uppercase py-4">Guardar</button>
+                                class="bg-blue-600 text-white rounded-2xl font-black text-xs hover:bg-blue-700 transition-all uppercase py-4 shadow-lg">Guardar</button>
                         </div>
                     </div>
                 </section>
 
+                <!-- ESTUDIANTE / REP -->
                 <section id="section-estudiante" class="role-section space-y-8">
                     <div
-                        class="bg-gradient-to-br from-blue-700 via-blue-900 to-indigo-950 p-10 rounded-[3rem] text-white shadow-2xl text-center">
-                        <h3 class="text-2xl font-black mb-2">Resumen Académico</h3>
-                        <p class="opacity-60 text-[10px] font-bold tracking-[0.3em] uppercase mb-8 text-white">Periodo
-                            2025-2026 • 3er Año</p>
-                        <p id="promedio-est" class="text-6xl font-black">--</p>
+                        class="bg-gradient-to-br from-blue-700 via-blue-900 to-indigo-950 p-10 rounded-[3rem] text-white shadow-2xl text-center relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-2xl font-black mb-2">Promedio General</h3>
+                            <p class="opacity-60 text-[10px] font-bold tracking-[0.3em] uppercase mb-8">Periodo
+                                2025-2026 • 3er Año</p>
+                            <p id="promedio-est" class="text-7xl font-black text-blue-300 tracking-tighter">--</p>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-[3rem] shadow-xl overflow-x-auto">
+                    <div class="bg-white p-6 rounded-[3rem] shadow-xl overflow-x-auto border border-slate-100">
                         <table class="w-full text-left min-w-[500px]">
                             <thead>
                                 <tr class="text-[10px] font-black uppercase text-slate-400 border-b-2">
@@ -200,16 +205,17 @@
             <!-- VISTA MENSAJERÍA -->
             <div id="vista-mensajeria" class="seccion-app space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-8 rounded-[3rem] shadow-xl space-y-4">
-                        <h3 class="text-xs font-black text-blue-900 uppercase italic mb-2">Redactar</h3>
+                    <div class="bg-white p-8 rounded-[3rem] shadow-xl space-y-4 h-fit border border-slate-100">
+                        <h3 class="text-xs font-black text-blue-900 uppercase italic mb-2 tracking-widest">Redactar
+                            Mensaje</h3>
                         <select id="msg-destino"
-                            class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold"></select>
+                            class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-600 outline-none"></select>
                         <input type="text" id="msg-asunto" placeholder="Asunto"
-                            class="w-full p-4 bg-slate-50 border rounded-2xl text-xs">
-                        <textarea id="msg-cuerpo" placeholder="Mensaje..."
-                            class="w-full p-4 bg-slate-50 border rounded-2xl h-44 text-xs resize-none"></textarea>
+                            class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none">
+                        <textarea id="msg-cuerpo" placeholder="Escriba su mensaje..."
+                            class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl h-44 text-xs resize-none outline-none"></textarea>
                         <button onclick="enviarMensaje()"
-                            class="w-full bg-blue-900 text-white font-black p-4 rounded-2xl text-xs">ENVIAR</button>
+                            class="w-full bg-blue-900 text-white font-black p-4 rounded-2xl text-xs shadow-lg active:scale-95 transition-all">ENVIAR</button>
                     </div>
                     <div class="lg:col-span-2 space-y-5" id="bandeja-mensajes"></div>
                 </div>
@@ -217,14 +223,24 @@
 
             <!-- VISTA PERFIL -->
             <div id="vista-perfil" class="seccion-app">
-                <div class="max-w-md mx-auto bg-white rounded-[3.5rem] shadow-2xl overflow-hidden p-10 text-center">
+                <div
+                    class="max-w-md mx-auto bg-white rounded-[3.5rem] shadow-2xl overflow-hidden p-10 text-center border border-slate-100">
+                    <div
+                        class="w-20 h-20 bg-blue-100 rounded-full mx-auto flex items-center justify-center text-blue-900 text-3xl mb-6 shadow-inner">
+                        <i class="fas fa-user-shield"></i></div>
                     <h3 id="perf-nombre" class="text-xl font-black text-slate-800 mb-2 italic uppercase"></h3>
                     <p id="perf-rol" class="text-blue-500 font-black uppercase text-[10px] tracking-widest mb-8"></p>
                     <div class="text-left space-y-4 border-t pt-6">
-                        <div class="p-4 bg-slate-50 rounded-2xl flex justify-between"><span>Cédula:</span><span
-                                id="perf-cedula" class="font-bold"></span></div>
-                        <div class="p-4 bg-slate-50 rounded-2xl flex justify-between"><span>Correo:</span><span
-                                id="perf-email" class="font-bold"></span></div>
+                        <div
+                            class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Cédula:</span>
+                            <span id="perf-cedula" class="font-bold text-slate-700"></span>
+                        </div>
+                        <div
+                            class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Email:</span>
+                            <span id="perf-email" class="font-bold text-slate-700"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -254,9 +270,11 @@
                 if (rol === 'Estudiante') {
                     cargarDatosReales(nombre);
                 } else if (rol === 'Representante') {
-                    const res = await fetch(`/nombre-hijo/${localStorage.getItem('cedula_hijo')}`);
-                    const hijo = await res.json();
-                    if (hijo.nombre_completo) cargarDatosReales(hijo.nombre_completo);
+                    try {
+                        const res = await fetch(`/nombre-hijo/${localStorage.getItem('cedula_hijo')}`);
+                        const hijo = await res.json();
+                        if (hijo.nombre_completo) cargarDatosReales(hijo.nombre_completo);
+                    } catch (e) { console.error("Error vínculo hijo"); }
                 }
             }
             if (rol === 'Admin') {
@@ -271,8 +289,7 @@
             const sel = document.getElementById('select-estudiante');
             sel.innerHTML = '<option value="">Seleccione Estudiante...</option>';
             ests.forEach(e => {
-                const nom = `${e.nombre} ${e.apellido}`;
-                sel.innerHTML += `<option value="${nom}">${nom}</option>`;
+                sel.innerHTML += `<option value="${e.nombre_completo}">${e.nombre_completo}</option>`;
             });
         }
 
@@ -296,12 +313,16 @@
             const tabla = document.getElementById('tabla-notas-reales');
             tabla.innerHTML = "";
             let suma = 0;
+            if (notas.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-300 italic">Sin registros académicos</td></tr>';
+                return;
+            }
             notas.forEach(n => {
                 suma += parseFloat(n.nota);
                 const color = n.nota >= 10 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-                tabla.innerHTML += `<tr><td class="py-6 font-bold">${n.asignatura}</td><td class="text-center font-black">${n.nota}</td><td class="text-center text-xs opacity-50">${new Date(n.fecha_registro).toLocaleDateString()}</td><td class="text-center"><span class="${color} px-4 py-2 rounded-2xl text-[9px] uppercase font-black">${n.nota >= 10 ? 'Aprobado' : 'Riesgo'}</span></td></tr>`;
+                tabla.innerHTML += `<tr><td class="py-6 font-bold text-slate-700 underline decoration-blue-100 decoration-4 underline-offset-8">${n.asignatura}</td><td class="text-center font-black text-xl">${n.nota}</td><td class="text-center text-[10px] font-bold text-slate-300">${new Date(n.fecha_registro).toLocaleDateString()}</td><td class="text-center"><span class="${color} border px-4 py-2 rounded-2xl text-[9px] uppercase font-black">${n.nota >= 10 ? 'Aprobado' : 'Riesgo'}</span></td></tr>`;
             });
-            if (notas.length) document.getElementById('promedio-est').innerText = (suma / notas.length).toFixed(1);
+            document.getElementById('promedio-est').innerText = (suma / notas.length).toFixed(1);
         }
 
         async function cargarEstadisticasDocente() {
@@ -316,6 +337,19 @@
             document.querySelectorAll('.seccion-app').forEach(div => div.classList.remove('active'));
             document.getElementById('vista-' + nombre).classList.add('active');
             document.getElementById('page-title').innerText = nombre.toUpperCase();
+
+            // Lógica de rol para la sección de Inicio
+            if (nombre === 'inicio') {
+                const rol = localStorage.getItem('rol');
+                document.getElementById('section-docente').style.display = 'none';
+                document.getElementById('section-estudiante').style.display = 'none';
+                const idSec = rol === 'Docente' ? 'section-docente' : 'section-estudiante';
+                document.getElementById(idSec).style.display = 'block';
+            }
+
+            // CIERRE AUTOMÁTICO EN MÓVIL
+            if (window.innerWidth < 1024) toggleMenu();
+
             if (nombre === 'mensajeria') { obtenerContactos(); obtenerMensajes(); }
             if (nombre === 'perfil') cargarPerfil();
         }
@@ -330,20 +364,16 @@
         }
 
         async function obtenerContactos() {
-            try {
-                const res = await fetch('/usuarios');
-                const us = await res.json();
-                const sel = document.getElementById('msg-destino');
-                const miId = localStorage.getItem('id_usuario');
-
-                sel.innerHTML = '<option value="">Para: Seleccione...</option>';
-                us.forEach(u => {
-                    // No aparecer yo mismo en la lista
-                    if (u.id_usuario != miId) {
-                        sel.innerHTML += `<option value="${u.id_usuario}">${u.nombre} ${u.apellido} (${u.rol})</option>`;
-                    }
-                });
-            } catch (e) { console.error("Error cargando contactos:", e); }
+            const res = await fetch('/usuarios');
+            const us = await res.json();
+            const sel = document.getElementById('msg-destino');
+            const miId = localStorage.getItem('id_usuario');
+            sel.innerHTML = '<option value="">Para: Seleccione...</option>';
+            us.forEach(u => {
+                if (u.id_usuario != miId) {
+                    sel.innerHTML += `<option value="${u.id_usuario}">${u.nombre} ${u.apellido} (${u.rol})</option>`;
+                }
+            });
         }
 
         async function enviarMensaje() {
@@ -351,53 +381,37 @@
             const destinatario_id = document.getElementById('msg-destino').value;
             const asunto = document.getElementById('msg-asunto').value;
             const contenido = document.getElementById('msg-cuerpo').value;
+            if (!destinatario_id || !contenido) return alert("⚠️ Complete los campos.");
 
-            if (!destinatario_id || !contenido) {
-                return alert("⚠️ Seleccione un destinatario y escriba un mensaje.");
+            const res = await fetch('/enviar-mensaje', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ remitente_id, destinatario_id, asunto, contenido })
+            });
+            if (res.ok) {
+                alert("✅ Enviado");
+                document.getElementById('msg-asunto').value = "";
+                document.getElementById('msg-cuerpo').value = "";
             }
-
-            const datos = { remitente_id, destinatario_id, asunto, contenido };
-
-            try {
-                const res = await fetch('/enviar-mensaje', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
-
-                if (res.ok) {
-                    alert("✅ Mensaje enviado exitosamente");
-                    document.getElementById('msg-asunto').value = "";
-                    document.getElementById('msg-cuerpo').value = "";
-                    document.getElementById('msg-destino').value = "";
-                } else {
-                    alert("❌ Error al enviar el mensaje");
-                }
-            } catch (e) { alert("❌ Error de conexión"); }
         }
 
         async function obtenerMensajes() {
-            try {
-                const userId = localStorage.getItem('id_usuario');
-                const res = await fetch(`/mensajes/${userId}`);
-                const ms = await res.json();
-                const cont = document.getElementById('bandeja-mensajes');
-
-                cont.innerHTML = ms.length ? "" : '<div class="bg-white p-10 rounded-3xl text-center opacity-40">Bandeja vacía</div>';
-
-                ms.forEach(m => {
-                    const fecha = new Date(m.fecha_envio).toLocaleString();
-                    cont.innerHTML += `
-                <div class="bg-white p-6 rounded-[2rem] border-l-[12px] border-blue-900 shadow-xl shadow-blue-900/5 hover:-translate-y-1 transition-all">
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">De: ${m.nombre_remitente}</p>
-                        <span class="text-[8px] text-slate-300 font-bold">${fecha}</span>
-                    </div>
-                    <h4 class="text-xs font-black uppercase text-slate-800 mb-1">${m.asunto || 'Sin Asunto'}</h4>
-                    <p class="text-xs text-slate-500 leading-relaxed">${m.contenido}</p>
-                </div>`;
-                });
-            } catch (e) { console.error("Error cargando mensajes:", e); }
+            const userId = localStorage.getItem('id_usuario');
+            const res = await fetch(`/mensajes/${userId}`);
+            const ms = await res.json();
+            const cont = document.getElementById('bandeja-mensajes');
+            cont.innerHTML = ms.length ? "" : '<div class="bg-white p-16 text-center rounded-[3rem] opacity-30 italic text-sm">Bandeja vacía</div>';
+            ms.forEach(m => {
+                cont.innerHTML += `
+            <div class="bg-white p-6 rounded-[2rem] border-l-[12px] border-blue-900 shadow-xl shadow-blue-900/5 hover:-translate-y-1 transition-all">
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">De: ${m.nombre_remitente}</p>
+                    <span class="text-[8px] text-slate-300 font-bold uppercase">${new Date(m.fecha_envio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+                <h4 class="text-xs font-black uppercase text-slate-800 mb-2">${m.asunto || 'Sin Asunto'}</h4>
+                <p class="text-xs text-slate-500 leading-loose">${m.contenido}</p>
+            </div>`;
+            });
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = 'login.html'; }
