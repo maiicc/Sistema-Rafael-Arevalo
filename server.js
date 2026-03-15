@@ -109,9 +109,15 @@ app.post('/guardar-nota', (req, res) => {
                     const rep = results[0];
                     const htmlAlerta = `
                         <div style="font-family: sans-serif; border: 2px solid #ff0000; padding: 20px; border-radius: 15px;">
-                            <h2 style="color: #d32f2f;">⚠️ Alerta Académica</h2>
-                            <p>Estimado(a) <b>${rep.nombre_rep}</b>, le informamos que el estudiante <b>${rep.nombre_est}</b> obtuvo <b>${nota}</b> en <b>${asignatura}</b>.</p>
-                        </div>`;
+                                <h2 style="color: #d32f2f;">Notificación de Calificación Baja</h2>
+                                <p>Estimado(a) <b>${rep.nombre_rep}</b>,</p>
+                                <p>Le informamos que el estudiante <b>${rep.nombre_est}</b> ha obtenido una nota de 
+                                <span style="color: #d32f2f; font-size: 18px; font-weight: bold;">${nota}</span> 
+                                en la asignatura <b>${asignatura}</b>.</p>
+                                <p>Por favor, asista a la institución para conversar con el docente.</p>
+                                <hr>
+                                <p style="font-size: 10px; color: #777;">CEN Rafael Arévalo González - Mensaje Automático</p>
+                            </div>`;
 
                     try {
                         await enviarEmailAPI(`⚠️ ALERTA: ${rep.nombre_est}`, htmlAlerta, rep.email);
